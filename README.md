@@ -27,7 +27,7 @@
 Download as MP4 or extract audio as MP3
 
 🔗 **Broad URL Support**  
-Works with `youtube.com`, `youtu.be`, `music.youtube.com`, and `/shorts/`
+Works with `youtube.com`, `youtu.be`, `music.youtube.com`, `/shorts/`, and playlists
 
 ⚡ **Lightweight**  
 No frontend framework — pure vanilla JS, HTML, and CSS
@@ -38,14 +38,15 @@ No frontend framework — pure vanilla JS, HTML, and CSS
 🎨 **Clean UI**  
 Minimal dark-themed interface with a download spinner
 
+📦 **Playlist Support**  
+Download entire playlists as a ZIP file — MP4 or MP3
+
 🗑 **Auto Cleanup**  
-Downloaded files are deleted from the server after being sent
+Downloaded files and folders are deleted from the server after being sent
 
 🔒 **Local Only**  
 Runs entirely on your machine — nothing leaves your network
 
-</td>
-</tr>
 </table>
 
 ---
@@ -96,13 +97,13 @@ Most YouTube downloaders are either bloated with ads, require browser extensions
 ## 📖 Usage
 
 1. Paste a YouTube URL into the input field  
-   *(supports `youtube.com/watch`, `youtu.be`, `music.youtube.com`, and `youtube.com/shorts`)*
+   *(supports `youtube.com/watch`, `youtu.be`, `music.youtube.com`, `youtube.com/shorts`, and `youtube.com/playlist`)*
 
 2. Toggle between **Video** (MP4) and **Audio** (MP3) using the left button
 
 3. Click **Download**
 
-4. The file will be downloaded directly to your browser's downloads folder
+4. The file will be downloaded directly to your browser's downloads folder — playlists are delivered as a ZIP
 
 ---
 
@@ -112,16 +113,18 @@ Most YouTube downloaders are either bloated with ads, require browser extensions
 
 ```
 Browser form submit
-    └─► POST /mp4 or /mp3 (Flask)
-            └─► yt-dlp downloads the file to /downloads
-                    └─► Flask streams the file back to the browser
-                            └─► File is deleted from server after sending
+    └─► POST /mp4 or /mp3 (single video)
+    └─► POST /playlist-mp4 or /playlist-mp3 (playlist)
+            └─► yt-dlp downloads the file(s) to /downloads
+                    └─► Flask streams the file (or ZIP) back to the browser
+                            └─► File(s) and folders are deleted from server after sending
 ```
 
 ### Format Handling
 
 - **MP4** — uses `bestvideo+bestaudio/best` and merges with FFmpeg
 - **MP3** — uses `bestaudio/best` and extracts audio with FFmpeg's `FFmpegExtractAudio` postprocessor
+- **Playlist** — downloads all videos into a subfolder, zips them, and sends the ZIP
 
 ### Filename
 
@@ -187,7 +190,7 @@ Contributions are welcome! If you find a bug or want to improve the app, feel fr
 
 ### "Please enter a valid YouTube URL"
 - Make sure the URL starts with `https://`
-- Supported formats: `youtube.com/watch?v=`, `youtu.be/`, `music.youtube.com/watch?v=`, `youtube.com/shorts/`
+- Supported formats: `youtube.com/watch?v=`, `youtu.be/`, `music.youtube.com/watch?v=`, `youtube.com/shorts/`, `youtube.com/playlist?list=`
 
 ### Download fails or hangs
 - Make sure FFmpeg is installed and available in your system PATH

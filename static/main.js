@@ -16,7 +16,8 @@ videoAudioToggle.addEventListener("click", () => {
     }
 });
 
-const YT_URL_RE = /^https?:\/\/((www\.|music\.)?youtube\.com\/(watch\?.*v=|shorts\/)|youtu\.be\/)[-\w]+/;
+const YT_URL_RE = /^https?:\/\/((www\.|music\.)?youtube\.com\/(watch\?.*v=|shorts\/|playlist\?.*list=)|youtu\.be\/)[-\w]+/;
+const YT_PLAYLIST_RE = /[?&]list=[-\w]+/;
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -28,13 +29,15 @@ form.addEventListener('submit', async (e) => {
     }
 
     const fileFormat = downloadVideo ? "mp4" : "mp3";
+    const isPlaylist = url.includes("playlist?list=") || (YT_PLAYLIST_RE.test(url) && !url.includes("/shorts/"));
+    const endpoint = isPlaylist ? `playlist-${fileFormat}` : fileFormat;
 
     submitBtn.disabled = true;
     videoAudioToggle.disabled = true;
     submitBtn.innerHTML = '<div class="spinner"></div> Downloading';
 
     try {
-        const response = await fetch(`http://localhost:5000/${fileFormat}`, {
+        const response = await fetch(`http://localhost:5000/${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url })
@@ -51,7 +54,7 @@ form.addEventListener('submit', async (e) => {
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = filename || `file.${fileFormat}`;
+        a.download = filename || `file.${isPlaylist ? "zip" : fileFormat}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
